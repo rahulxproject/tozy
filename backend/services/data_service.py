@@ -1,4 +1,5 @@
 import pandas as pd
+import yfinance as yf
 from datetime import datetime, timedelta
 from database import db
 from models.instrument import Instrument
@@ -9,10 +10,51 @@ class DataService:
     def __init__(self):
         self.instrument_model = Instrument(db)
     
+    def fetch_yahoo_data(self, symbol, days=252):
+        """
+        Fetch real EOD data from Yahoo Finance for NSE stocks.
+        Symbol format: For NSE stocks, use .NS suffix (e.g., RELIANCE.NS)
+        """
+        # Add .NS suffix if not present for NSE stocks
+        if not symbol.endswith('.NS'):
+            symbol = f"{symbol}.NS"
+        
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+        
+        try:
+            ticker = yf.Ticker(symbol)
+            df = ticker.history(start=start_date, end=end_date)
+            
+            if df.empty:
+                raise ValueError(f"No data found for symbol {symbol}")
+            
+            # Reset index and rename columns to match our schema
+            df = df.reset_index()
+            df = df.rename(columns={
+                'Date': 'date',
+                'Open': 'open',
+                'High': 'high',
+                'Low': 'low',
+                'Close': 'close',
+                'Volume': 'volume'
+            })
+            
+            # Select only needed columns
+            df = df[['date', 'open', 'high', 'low', 'close', 'volume']]
+            
+            # Convert date to date object
+            df['date'] = pd.to_datetime(df['date']).dt.date
+            
+            return df
+        except Exception as e:
+            print(f"Error fetching data for {symbol}: {e}")
+            return None
+    
     def fetch_sample_data(self, symbol, days=252):
         """
         Generate sample EOD data for development/testing.
-        In production, this would fetch from NSE official sources or data vendors.
+        Fallback when real data is unavailable.
         """
         import numpy as np
         
@@ -102,29 +144,47 @@ class DataService:
         results = db.execute(query, params)
         return pd.DataFrame([dict(r) for r in results]) if results else pd.DataFrame()
     
-    def update_all_instruments(self, days=252):
+    def update_all_instruments(self, days=252, use_real_data=True):
         """Update data for all active instruments"""
         instruments = self.instrument_model.get_all_instruments(active_only=True)
         
         total_updated = 0
         for instrument in instruments:
             try:
-                df = self.fetch_sample_data(instrument['symbol'], days)
-                count = self.store_ohlcv_data(instrument['id'], df)
-                total_updated += count
-                print(f"Updated {instrument['symbol']}: {count} records")
+                if use_real_data:
+                    df = self.fetch_yahoo_data(instrument['symbol'], days)
+                    if df is None:
+                        print(f"Falling back to sample data for {instrument['symbol']}")
+                        df = self.fetch_sample_data(instrument['symbol'], days)
+                else:
+                    df = self.fetch_sample_data(instrument['symbol'], days)
+                
+                if df is not None:
+                    count = self.store_ohlcv_data(instrument['id'], df)
+                    total_updated += count
+                    print(f"Updated {instrument['symbol']}: {count} records")
             except Exception as e:
                 print(f"Error updating {instrument['symbol']}: {e}")
         
         return total_updated
     
-    def update_single_instrument(self, symbol, days=252):
+    def update_single_instrument(self, symbol, days=252, use_real_data=True):
         """Update data for a single instrument"""
         instrument = self.instrument_model.get_instrument_by_symbol(symbol)
         
         if not instrument:
             raise ValueError(f"Instrument {symbol} not found")
         
-        df = self.fetch_sample_data(symbol, days)
+        if use_real_data:
+            df = self.fetch_yahoo_data(symbol, days)
+            if df is None:
+                print(f"Falling back to sample data for {symbol}")
+                df = self.fetch_sample_data(symbol, days)
+        else:
+            df = self.fetch_sample_data(symbol, days)
+        
+        if df is None:
+            raise ValueError(f"Failed to fetch data for {symbol}")
+        
         count = self.store_ohlcv_data(instrument['id'], df)
         return count

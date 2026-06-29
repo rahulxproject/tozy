@@ -112,3 +112,42 @@ def delete_strategy(strategy_id):
         return jsonify({'message': 'Strategy deleted successfully'}), 200
     
     return jsonify({'error': 'Failed to delete strategy'}), 500
+
+@strategies_bp.route('/<strategy_id>/backtest', methods=['POST'])
+@token_required
+def backtest_strategy(strategy_id):
+    """Run a backtest for a strategy"""
+    data = request.get_json()
+    
+    if not data or not data.get('instrument_id'):
+        return jsonify({'error': 'instrument_id is required'}), 400
+    
+    instrument_id = data['instrument_id']
+    start_date = data.get('start_date')
+    end_date = data.get('end_date')
+    initial_capital = data.get('initial_capital', 100000)
+    
+    strategy_model = Strategy(db)
+    strategy = strategy_model.get_strategy_by_id(strategy_id)
+    
+    if not strategy:
+        return jsonify({'error': 'Strategy not found'}), 404
+    
+    if not strategy['is_active']:
+        return jsonify({'error': 'Strategy is not active'}), 400
+    
+    from services.backtest_service import BacktestService
+    
+    backtest_service = BacktestService()
+    results = backtest_service.run_backtest(
+        strategy=strategy,
+        instrument_id=instrument_id,
+        start_date=start_date,
+        end_date=end_date,
+        initial_capital=initial_capital
+    )
+    
+    if 'error' in results:
+        return jsonify({'error': results['error']}), 400
+    
+    return jsonify({'backtest': results}), 200

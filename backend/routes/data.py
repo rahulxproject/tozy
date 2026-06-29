@@ -13,15 +13,16 @@ def update_data():
     
     symbol = data.get('symbol')  # If provided, update only this symbol
     days = data.get('days', 252)
+    use_real_data = data.get('use_real_data', True)
     
     data_service = DataService()
     
     try:
         if symbol:
-            count = data_service.update_single_instrument(symbol, days)
+            count = data_service.update_single_instrument(symbol, days, use_real_data)
             return jsonify({'message': f'Updated {symbol}: {count} records', 'count': count}), 200
         else:
-            count = data_service.update_all_instruments(days)
+            count = data_service.update_all_instruments(days, use_real_data)
             return jsonify({'message': f'Updated all instruments: {count} total records', 'count': count}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
