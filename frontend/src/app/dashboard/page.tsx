@@ -1,17 +1,25 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { signalsAPI, tradesAPI, strategiesAPI } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Dashboard() {
+  const router = useRouter()
+  const { logout, isAuthenticated } = useAuth()
   const [signals, setSignals] = useState([])
   const [trades, setTrades] = useState([])
   const [performance, setPerformance] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login')
+      return
+    }
     loadDashboardData()
-  }, [])
+  }, [isAuthenticated, router])
 
   const loadDashboardData = async () => {
     try {
@@ -31,6 +39,11 @@ export default function Dashboard() {
     }
   }
 
+  const handleLogout = () => {
+    logout()
+    router.push('/login')
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -45,7 +58,12 @@ export default function Dashboard() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <button className="text-gray-600 hover:text-gray-900">Logout</button>
+          <button 
+            onClick={handleLogout}
+            className="text-gray-600 hover:text-gray-900"
+          >
+            Logout
+          </button>
         </div>
       </header>
 
@@ -160,16 +178,28 @@ export default function Dashboard() {
         <div className="mt-8 bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button 
+              onClick={() => router.push('/trades/new')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
               Log Trade
             </button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button 
+              onClick={() => router.push('/signals')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
               View Signals
             </button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button 
+              onClick={() => router.push('/journal')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
               View Journal
             </button>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            <button 
+              onClick={() => router.push('/analytics')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
               Analytics
             </button>
           </div>
