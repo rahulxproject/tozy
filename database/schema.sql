@@ -172,7 +172,7 @@ CREATE INDEX idx_audit_user_date ON audit_logs(user_id, created_at DESC) WHERE u
 CREATE INDEX idx_audit_action_date ON audit_logs(action, created_at DESC);
 
 -- Sample Data: Exchanges
-INSERT INTO exchanges (code, name, country, timezone) VALUES
+ INTO exchanges (code, name, country, timezone) VALUES
 ('NSE', 'National Stock Exchange of India', 'India', 'Asia/Kolkata'),
 ('BSE', 'Bombay Stock Exchange', 'India', 'Asia/Kolkata'),
 ('MCX', 'Multi Commodity Exchange', 'India', 'Asia/Kolkata');
@@ -236,7 +236,7 @@ INSERT INTO strategies (name, description, is_system, entry_conditions, exit_con
     'Swing Retracement',
     'Buy retracements in larger uptrend',
     TRUE,
-    '{"rules": [{"indicator": "EMA", "params": {"period": 50}, "condition": "trend_up", "value": "price_above"}, {"indicator": "price", "condition": "retracement", "value": "38_61_percent", "of_swing"}], "logic": "AND"}'::jsonb,
+    '{"rules": [{"indicator": "EMA", "params": {"period": 50}, "condition": "trend_up", "value": "price_above"}, {"indicator": "price", "condition": "retracement", "value": "38_61_percent", "context": "of_swing"}], "logic": "AND"}'::jsonb,
     '{"rules": [{"indicator": "price", "condition": "target", "value": "swing_high"}, {"indicator": "price", "condition": "stop_loss", "value": "below_61_percent"}], "logic": "OR"}'::jsonb,
     '{"stop_loss_method": "atr", "stop_loss_value": 2, "take_profit_method": "risk_reward", "take_profit_value": 2, "position_sizing_method": "risk_percent", "position_sizing_value": 1}'::jsonb,
     '1D',
