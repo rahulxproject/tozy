@@ -32,14 +32,39 @@ indian-trading-platform/
 
 ## Getting Started
 
-### Prerequisites
+### Option 1: Docker (Recommended for Windows)
 
+**Prerequisites:**
+- Docker Desktop
 - Node.js 18+
-- Python 3.12+
+
+**Setup:**
+```bash
+# Start PostgreSQL and backend
+docker-compose up -d
+
+# Create database and load schema
+docker-compose exec postgres psql -U postgres -c "CREATE DATABASE trading_platform;"
+docker-compose exec -T postgres psql -U postgres -d trading_platform < database/schema.sql
+
+# Start frontend (in new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+**Access:**
+- Backend: http://localhost:5000
+- Frontend: http://localhost:3000
+
+### Option 2: Local Setup
+
+**Prerequisites:**
+- Node.js 18+
+- Python 3.11+ (3.12+ may have build issues on Windows)
 - PostgreSQL database
 
-### Backend Setup
-
+**Backend Setup:**
 ```bash
 cd backend
 python -m venv venv
@@ -48,8 +73,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-### Frontend Setup
-
+**Frontend Setup:**
 ```bash
 cd frontend
 npm install
