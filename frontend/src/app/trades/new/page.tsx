@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { tradesAPI, dataAPI } from '@/lib/api'
+import Navigation from '@/components/Navigation'
 
 export default function NewTradePage() {
   const router = useRouter()
@@ -54,7 +55,7 @@ export default function NewTradePage() {
         stop_loss: formData.stop_loss ? parseFloat(formData.stop_loss) : null,
         take_profit: formData.take_profit ? parseFloat(formData.take_profit) : null
       })
-      router.push('/dashboard')
+      router.push('/trades')
     } catch (error: any) {
       console.error('Error creating trade:', error)
       alert(error.response?.data?.error || 'Failed to create trade')
@@ -73,18 +74,8 @@ export default function NewTradePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Log New Trade</h1>
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            Cancel
-          </button>
-        </div>
-      </header>
-
+      <Navigation />
+      
       <main className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow p-6">
           <form onSubmit={handleSubmit} className="space-y-6">

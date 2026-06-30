@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { journalAPI } from '@/lib/api'
+import Navigation from '@/components/Navigation'
 
 export default function JournalPage() {
   const router = useRouter()
@@ -69,18 +70,8 @@ export default function JournalPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Trading Journal</h1>
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      </header>
-
+      <Navigation />
+      
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-6">
           <button

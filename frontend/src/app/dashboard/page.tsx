@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signalsAPI, tradesAPI, strategiesAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import Navigation from '@/components/Navigation'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -39,11 +40,6 @@ export default function Dashboard() {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    router.push('/login')
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -54,19 +50,8 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <button 
-            onClick={handleLogout}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-
+      <Navigation />
+      
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Performance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
