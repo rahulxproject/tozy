@@ -88,13 +88,13 @@ class BacktestService:
                 exit_price = data['close'].iloc[i]
                 
                 # Check stop loss
-                if exit_price <= current_position['stop_loss']:
+                if current_position['stop_loss'] and exit_price <= current_position['stop_loss']:
                     exit_met = True
                     exit_reason = 'stop_loss'
                     exit_price = current_position['stop_loss']
                 
                 # Check take profit
-                elif exit_price >= current_position['take_profit']:
+                elif current_position['take_profit'] and exit_price >= current_position['take_profit']:
                     exit_met = True
                     exit_reason = 'take_profit'
                     exit_price = current_position['take_profit']

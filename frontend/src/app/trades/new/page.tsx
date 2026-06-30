@@ -55,9 +55,9 @@ export default function NewTradePage() {
         take_profit: formData.take_profit ? parseFloat(formData.take_profit) : null
       })
       router.push('/dashboard')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating trade:', error)
-      alert('Failed to create trade')
+      alert(error.response?.data?.error || 'Failed to create trade')
     } finally {
       setSubmitting(false)
     }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authAPI } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -10,6 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,8 +20,7 @@ export default function LoginPage() {
 
     try {
       const response = await authAPI.login(email, password)
-      localStorage.setItem('token', response.data.token)
-      localStorage.setItem('user', JSON.stringify(response.data.user))
+      login(response.data.user, response.data.token)
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed')

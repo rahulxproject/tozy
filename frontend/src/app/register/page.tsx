@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authAPI } from '@/lib/api'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -12,6 +13,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,9 +27,8 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
-      const response = await authAPI.register(email, password, name)
-      localStorage.setItem('token', response.data.token)
-      localStorage.setItem('user', JSON.stringify(response.data.user))
+      const response = await authAPI.register({ email, password, name })
+      login(response.data.user, response.data.token)
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed')

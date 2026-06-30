@@ -44,8 +44,9 @@ export default function JournalPage() {
       setFormData({ notes: '', entry_type: 'general', mood: '', tags: '' })
       setShowForm(false)
       loadEntries()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating entry:', error)
+      alert(error.response?.data?.error || 'Failed to save journal entry')
     }
   }
 

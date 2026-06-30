@@ -12,7 +12,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   token: string | null
-  login: (email: string, password: string) => Promise<void>
+  login: (user: User, token: string) => void
   logout: () => void
   isAuthenticated: boolean
 }
@@ -36,9 +36,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false)
   }, [])
 
-  const login = async (email: string, password: string) => {
-    // This will be called by the login page after API call
-    // The actual API call happens in the login component
+  const login = (user: User, token: string) => {
+    setToken(token)
+    setUser(user)
+    localStorage.setItem('token', token)
+    localStorage.setItem('user', JSON.stringify(user))
   }
 
   const logout = () => {
